@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="../FNA/FNA.Core.csproj" />
+  <Project Path="../ResourcesManager/Moe.ResourcesManager/Moe.ResourcesManager.csproj" />
+  <Project Path="Moe.TextEngine/Moe.TextEngine.csproj" />
+</Solution>

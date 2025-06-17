@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\FNA\FNA.Core.csproj" />
+		<ProjectReference Include="..\..\ResourcesManager\Moe.ResourcesManager\Moe.ResourcesManager.csproj" />
+		<PackageReference Include="FreeTypeSharp" Version="3.0.0" />
+		<PackageReference Include="HarfBuzzSharp" Version="8.3.1.1" />
+	</ItemGroup>
+
+</Project>
