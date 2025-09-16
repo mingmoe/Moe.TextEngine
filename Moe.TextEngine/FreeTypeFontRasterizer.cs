@@ -26,10 +26,19 @@ public class FreeTypeFontRasterizer
         unsafe
         {
             FT_FaceRec_* face;
-            FT_New_Memory_Face(engine.Library, (byte*)font.Source.GetRawData(), font.Source.GetDataSize(), font.FaceIndex, &face);
+            var error = FT_New_Memory_Face(engine.Library,
+                (byte*)font.Source.GetRawData(),
+                font.Source.GetDataSize(),
+                font.FaceIndex,
+                &face);
             Face = face;
 
-            FT_Select_Charmap(Face, FT_Encoding_.FT_ENCODING_UNICODE);
+            Helper.AssertFTError(error);
+
+            error = FT_Select_Charmap(Face, FT_Encoding_.FT_ENCODING_UNICODE);
+
+            Helper.AssertFTError(error);
+
             ApplyFontOptions();
         }
     }
@@ -38,9 +47,13 @@ public class FreeTypeFontRasterizer
     {
         unsafe
         {
-            FT_Select_Charmap(Face, FT_Encoding_.FT_ENCODING_UNICODE);
+            var error = FT_Select_Charmap(Face, FT_Encoding_.FT_ENCODING_UNICODE);
 
-            FT_Set_Pixel_Sizes(Face, (uint)Options.PixelWidth, (uint)Options.PixelHeight);
+            Helper.AssertFTError(error);
+
+            error = FT_Set_Pixel_Sizes(Face, (uint)Options.PixelWidth, (uint)Options.PixelHeight);
+
+            Helper.AssertFTError(error);
         }
     }
 
@@ -58,11 +71,6 @@ public class FreeTypeFontRasterizer
         {
             var i = FT_Get_Char_Index(Face,
                 BitConverter.ToUInt32(BitConverter.GetBytes(rune.Value)));
-
-            if (i == 0)
-            {
-                throw new FreeTypeException(FT_Error.FT_Err_Ok, "get an undefined character code");
-            }
 
             return i;
         }

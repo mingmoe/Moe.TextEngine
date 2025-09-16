@@ -68,7 +68,7 @@ public sealed class Engine
                 return font;
             }
         }
-        return null;
+        return Fonts.Last();
     }
 
     private List<(ShapeRun, Font)> SplitRun(IList<Font> fonts, IList<Rune> rune, ShapeRun parentRun)
@@ -115,11 +115,25 @@ public sealed class Engine
         return runs;
     }
 
+    public void DrawString(ShapeRun run, Point place,SpriteBatch batch)
+    {
+        DrawString(
+            run,
+            (point, texture, rect) =>
+            {
+                var target = place + point;
+                batch.Draw(texture,
+                    new Rectangle(target.X, target.Y, rect.Width,rect.Height),
+                    rect, 
+                    Microsoft.Xna.Framework.Color.White);
+            });
+    }
+
     public void DrawString(ShapeRun run, Action<Point, Texture2D, Rectangle> draw)
     {
         var text = run.UsedText;
         List<Rune> codePoints = text.EnumerateRunes().ToList();
-        var outputs = codePoints.Select((r) => FindFont(r)).ToList();
+        var outputs = codePoints.Select(FindFont).ToList();
         outputs.RemoveAll((v) => v == null);
 
         List<(ShapeRun, Font)> runs = SplitRun(outputs!, codePoints, run);
@@ -170,6 +184,7 @@ public sealed class Engine
                 pen.Y += shapedCharacter.Advance.Y;
             }
         }
-
     }
+
+
 }
