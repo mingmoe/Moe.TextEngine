@@ -27,7 +27,7 @@ public readonly struct Color
 
     public readonly uint ToAGRB()
     {
-        return BitConverter.ToUInt32([Alpha, Green, Red, Blue]);
+        return BitConverter.ToUInt32([Red,Blue, Green, Alpha]);
     }
 
     public static Color FromAGRB(uint agrb)

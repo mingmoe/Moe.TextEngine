@@ -4,21 +4,14 @@ using Moe.ResourcesManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication.ExtendedProtection;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Moe.TextEngine;
 
-public record class FontReqwest(FontOptions Options, int GlyphIndex)
-{
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Options, GlyphIndex);
-    }
-}
-
-public sealed class Engine
+public sealed class TextEngine
 {
     public GraphicsDevice Device { get; init; }
 
@@ -35,9 +28,11 @@ public sealed class Engine
 
     public Dictionary<Font, HarfbuzzShape> Shapes { get; init; } = [];
 
+    public Dictionary<Font, Dictionary<FontReqwest,GlyphInfo>> GlyphCache { get; init; } = [];
+
     public Dictionary<Font, FreeTypeFontRasterizer> Rasterizers { get; init; } = [];
 
-    public Engine(GraphicsDevice device)
+    public TextEngine(GraphicsDevice device)
     {
         Device = device;
     }
@@ -112,6 +107,17 @@ public sealed class Engine
             index++;
         }
 
+        var rest = currentText.ToString();
+
+        if (!string.IsNullOrEmpty(rest))
+        {
+            runs.Add((new ShapeRun(parentRun.FontOptions, parentRun.ShapeOptions)
+            {
+                Text = currentText.ToString(),
+            },
+            currentFont!));
+        }
+
         return runs;
     }
 
@@ -129,10 +135,26 @@ public sealed class Engine
             });
     }
 
+    public Point MeasureSize(ShapeRun run)
+    {
+        int xMax = 0;
+        int yMax = 0;
+
+        DrawString(run,
+            (pen, _, rect) =>
+            {
+                xMax = int.Max(xMax, pen.X + rect.Width);
+                yMax = int.Max(yMax, pen.Y + rect.Height);
+            });
+
+        return new(xMax, yMax);
+    }
+
     public void DrawString(ShapeRun run, Action<Point, Texture2D, Rectangle> draw)
     {
+        var fontOptions = run.FontOptions;
         var text = run.UsedText;
-        List<Rune> codePoints = text.EnumerateRunes().ToList();
+        List<Rune> codePoints = [.. text.EnumerateRunes()];
         var outputs = codePoints.Select(FindFont).ToList();
         outputs.RemoveAll((v) => v == null);
 
@@ -167,16 +189,24 @@ public sealed class Engine
 
                 if (!cache.TryGet(reqwest, out bitmap))
                 {
-                    var size = rasterizers.LoadChar(shapedCharacter.GlyphIndex);
+                    var size = rasterizers.LoadChar(shapedCharacter.GlyphIndex,fontOptions);
                     var allocated = cache.Alloc(reqwest, new(size.Width, size.Rows));
                     rasterizers.WriteTo(allocated.Item1, allocated.Item2);
                     bitmap = allocated;
+
+                    if (!GlyphCache.ContainsKey(font)) {
+                        GlyphCache.TryAdd(font, []);
+                    }
+
+                    GlyphCache[font][reqwest] = size;
                 }
+
+                GlyphInfo glyphInfo = GlyphCache[font][reqwest];
 
                 // write
                 draw.Invoke(
                     new(pen.X + shapedCharacter.Offset.X,
-                    pen.Y + shapedCharacter.Offset.Y),
+                    pen.Y + shapedCharacter.Offset.Y + fontOptions.PixelHeight - glyphInfo.BearingY),
                     bitmap.Value.Item1,
                     bitmap.Value.Item2);
 

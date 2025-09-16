@@ -34,15 +34,13 @@ public class HarfbuzzShape
 
     public Font Font { get; init; }
 
-    public FontOptions FontOptions { get; set; } = new();
-
     public IEnumerable<ShapedCharacter> Shape(ShapeRun run)
     {
         List<ShapedCharacter> shapedCharacters = new(run.Text.Length);
 
         _buffer.Reset();
 
-        _font.SetScale(FontOptions.PixelWidth, FontOptions.PixelHeight);
+        _font.SetScale(run.FontOptions.PixelWidth, run.FontOptions.PixelHeight);
 
         _buffer.AddUtf16(run.Text, run.Offset, run.Length ?? run.Text.Length - run.Offset);
 

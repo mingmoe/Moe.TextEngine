@@ -1,5 +1,6 @@
 ﻿using FreeTypeSharp;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Design;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Buffers;
@@ -39,11 +40,11 @@ public class FreeTypeFontRasterizer
 
             Helper.AssertFTError(error);
 
-            ApplyFontOptions();
+            ApplyFontOptions(new());
         }
     }
 
-    private void ApplyFontOptions()
+    private void ApplyFontOptions(FontOptions options)
     {
         unsafe
         {
@@ -51,7 +52,7 @@ public class FreeTypeFontRasterizer
 
             Helper.AssertFTError(error);
 
-            error = FT_Set_Pixel_Sizes(Face, (uint)Options.PixelWidth, (uint)Options.PixelHeight);
+            error = FT_Set_Pixel_Sizes(Face, (uint)options.PixelWidth, (uint)options.PixelHeight);
 
             Helper.AssertFTError(error);
         }
@@ -62,8 +63,6 @@ public class FreeTypeFontRasterizer
     public FreeTypeEngine Engine => FreeType;
 
     public Font Font { get; init; }
-
-    public FontOptions Options { get; set; } = new();
 
     public long CovertToCharIndex(Rune rune)
     {
@@ -111,8 +110,10 @@ public class FreeTypeFontRasterizer
     /// TODO:SUPPORT SVG?
     /// </summary>
     /// <param name="charIndex"></param>
-    public GlyphInfo LoadChar(long charIndex)
+    public GlyphInfo LoadChar(long charIndex,FontOptions options)
     {
+        ApplyFontOptions(options);
+
         uint index;
         checked
         {
@@ -205,6 +206,11 @@ public class FreeTypeFontRasterizer
 
     public void WriteTo(Texture2D dst, Rectangle dstRange)
     {
+        if (dst.Format != SurfaceFormat.Color)
+        {
+            throw new ArgumentException("the surface format must be SurfaceFormat.Color", nameof(dst));
+        }
+
         unsafe
         {
             uint[]? buffer = null;

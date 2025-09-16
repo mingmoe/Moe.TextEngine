@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -27,6 +28,12 @@ public class FileFontSource : IFontSource
         {
             _length = (int)fileInfo.Length;
             _buffer = Marshal.AllocHGlobal(_length);
+
+            var read = File.ReadAllBytes(file);
+
+            Trace.Assert(read.Length == _length);
+
+            Marshal.Copy(read,0, _buffer,_length);
         }
     }
 
