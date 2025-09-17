@@ -12,6 +12,8 @@
 		<ProjectReference Include="..\..\ResourcesManager\Moe.ResourcesManager\Moe.ResourcesManager.csproj" />
 		<PackageReference Include="FreeTypeSharp" Version="3.0.0" />
 		<PackageReference Include="HarfBuzzSharp" Version="8.3.1.1" />
+		<PackageReference Include="icu.net" Version="3.0.1" />
+		<PackageReference Include="Icu4c.Win.Full.Lib" Version="59.1.15" />
 	</ItemGroup>
 
 </Project>

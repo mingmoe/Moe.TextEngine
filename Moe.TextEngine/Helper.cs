@@ -10,7 +10,6 @@ namespace Moe.TextEngine;
 
 internal static class Helper
 {
-
     public static void AssertFTError(FT_Error error)
     {
         if (error != FT_Error.FT_Err_Ok)
@@ -25,5 +24,26 @@ internal static class Helper
                     $"Get a freetype error(code {(long)error},{error}):{msg}");
             }
         }
+    }
+
+    public static int ConvertCharacterLengthToUtf16Length(string str, int start, int lengthInCharacter)
+    {
+        int advance = 0;
+
+        while (lengthInCharacter != 0)
+        {
+            if (char.IsSurrogate(str, start))
+            {
+                advance += 2;
+            }
+            else
+            {
+                advance += 1;
+            }
+
+            lengthInCharacter--;
+        }
+
+        return advance;
     }
 }

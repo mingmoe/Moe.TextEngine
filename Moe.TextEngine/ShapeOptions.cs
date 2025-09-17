@@ -20,5 +20,10 @@ public sealed class ShapeOptions
     /// follow BCP 47,
     /// e.g. from hb_language_from_string() 
     /// </summary>
+    public string Region { get; set; } = "en";
+
+    /// <summary>
+    ///  follow ISO 639
+    /// </summary>
     public string Language { get; set; } = "en";
 }

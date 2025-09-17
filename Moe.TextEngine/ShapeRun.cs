@@ -36,5 +36,15 @@ public class ShapeRun
     /// </summary>
     public int? Length { get; set; }
 
-    public string UsedText => Text[0..(Length ?? Text.Length)];
+    public string UsedText => Text.Substring(Offset, Length ?? (Text.Length - Offset));
+
+    public ShapeRun ResetUsedText(int offset, int length)
+    {
+        return new ShapeRun(this.FontOptions, this.ShapeOptions)
+        {
+            Text = this.Text,
+            Length = length,
+            Offset = offset
+        };
+    }
 }

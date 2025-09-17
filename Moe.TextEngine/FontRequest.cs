@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Moe.TextEngine
 {
-    public record class FontReqwest(FontOptions Options, int GlyphIndex)
+    public record class FontRequest(FontOptions Options, int GlyphIndex)
     {
         public override int GetHashCode()
         {

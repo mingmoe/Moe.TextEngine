@@ -47,7 +47,7 @@ public class HarfbuzzShape
         if (run.ShapeOptions != null)
         {
             _buffer.Script = HarfBuzzSharp.Script.Parse(run.ShapeOptions.Script);
-            _buffer.Language = new HarfBuzzSharp.Language(run.ShapeOptions.Language);
+            _buffer.Language = new HarfBuzzSharp.Language(run.ShapeOptions.Region);
             switch (run.ShapeOptions.Direction)
             {
                 case TextDirection.LeftToRight:
