@@ -11,7 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Moe.TextEngine;
 
-public sealed class TextEngine
+public sealed class RenderEngine
 {
     public GraphicsDevice Device { get; init; }
 
@@ -32,7 +32,7 @@ public sealed class TextEngine
 
     public Dictionary<Font, FreeTypeFontRasterizer> Rasterizers { get; init; } = [];
 
-    public TextEngine(GraphicsDevice device)
+    public RenderEngine(GraphicsDevice device)
     {
         Device = device;
     }
@@ -148,6 +148,80 @@ public sealed class TextEngine
             });
 
         return new(xMax, yMax);
+    }
+
+    public int GetMaxmimumTextSuitForWidth(ShapeRun run, int width)
+    {
+        var fontOptions = run.FontOptions;
+        var text = run.UsedText;
+        List<Rune> codePoints = [.. text.EnumerateRunes()];
+        var outputs = codePoints.Select(FindFont).ToList();
+        outputs.RemoveAll((v) => v == null);
+
+        List<(ShapeRun, Font)> runs = SplitRun(outputs!, codePoints, run);
+
+        // shaped
+        List<(IEnumerable<ShapedCharacter>, Font)> shaped = [];
+        foreach (var oneRun in runs)
+        {
+            var runOptions = oneRun.Item1;
+            var font = oneRun.Item2;
+
+            shaped.Add((Shapes[font].Shape(runOptions), font));
+        }
+
+        // shape
+        Point pen = new(0, 0);
+
+        int maxX = 0;
+        int length = 0;
+
+        foreach (var shape in shaped)
+        {
+            var shapedCharacters = shape.Item1;
+            var font = shape.Item2;
+            var cache = Cache[font];
+            var rasterizers = Rasterizers[font];
+
+            foreach (var shapedCharacter in shapedCharacters)
+            {
+                var reqwest = new FontReqwest(run.FontOptions,
+                    BitConverter.ToInt32(BitConverter.GetBytes(shapedCharacter.GlyphIndex)));
+
+                (Texture2D, Rectangle)? bitmap = null;
+
+                if (!cache.TryGet(reqwest, out bitmap))
+                {
+                    var size = rasterizers.LoadChar(shapedCharacter.GlyphIndex,fontOptions);
+                    var allocated = cache.Alloc(reqwest, new(size.Width, size.Rows));
+                    rasterizers.WriteTo(allocated.Item1, allocated.Item2);
+                    bitmap = allocated;
+
+                    if (!GlyphCache.ContainsKey(font)) {
+                        GlyphCache.TryAdd(font, []);
+                    }
+
+                    GlyphCache[font][reqwest] = size;
+                }
+
+                GlyphInfo glyphInfo = GlyphCache[font][reqwest];
+
+                // write
+                maxX = int.Max(maxX, pen.X + shapedCharacter.Offset.X);
+
+                if (maxX > width)
+                {
+                    break;
+                }
+
+                length++;
+
+                pen.X += shapedCharacter.Advance.X;
+                pen.Y += shapedCharacter.Advance.Y;
+            }
+        }
+
+        return length;
     }
 
     public void DrawString(ShapeRun run, Action<Point, Texture2D, Rectangle> draw)
