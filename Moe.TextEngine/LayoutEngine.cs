@@ -35,7 +35,7 @@ namespace Moe.TextEngine
                     return used.Length;
                 }
 
-                var nextRenderWidth = RenderEngine.MeasureSize(run.ResetUsedText(run.Offset, 
+                var nextRenderWidth = RenderEngine.MeasureSize(run.CloneWithNewOffset(run.Offset, 
                     Helper.ConvertCharacterLengthToUtf16Length(used, 0,latestPosition))).X;
 
                 if (nextRenderWidth > width)
@@ -64,7 +64,7 @@ namespace Moe.TextEngine
 
             while (consumed != total)
             {
-                var consume = SplitLine(it, run.ResetUsedText(run.Offset+consumed, total - consumed), width);
+                var consume = SplitLine(it, run.CloneWithNewOffset(run.Offset+consumed, total - consumed), width);
 
                 lines.Add(new (run.FontOptions,run.ShapeOptions)
                 {

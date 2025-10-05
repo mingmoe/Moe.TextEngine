@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Moe.TextEngine
 {
-    public class LibIcu
+    public sealed class LibIcu
     {
         private static readonly Lazy<object?> InitiateIcu = new(() =>
         {
@@ -18,6 +18,5 @@ namespace Moe.TextEngine
         {
             _ = InitiateIcu.Value;
         }
-
     }
 }

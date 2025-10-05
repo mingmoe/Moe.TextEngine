@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Moe.TextEngine;
 
-public class FileFontSource : IFontSource
+public sealed class FileFontSource : IFontSource
 {
     private readonly nint _buffer;
 
@@ -18,11 +18,11 @@ public class FileFontSource : IFontSource
 
     private bool _disposed = false;
 
-    public ResourceID ResourceID { get; init; }
+    public ResourceID ResourceId { get; init; }
 
     public FileFontSource(string file)
     {
-        ResourceID = new ResourceID(file);
+        ResourceId = new ResourceID(file);
         FileInfo fileInfo = new FileInfo(file);
         checked
         {
@@ -47,7 +47,7 @@ public class FileFontSource : IFontSource
         Dispose(false);
     }
 
-    protected virtual void Dispose(bool disposing)
+    protected void Dispose(bool disposing)
     {
         if (_disposed)
         {
@@ -89,6 +89,6 @@ public class FileFontSource : IFontSource
 
     public override int GetHashCode()
     {
-        return ResourceID.GetHashCode();
+        return ResourceId.GetHashCode();
     }
 }

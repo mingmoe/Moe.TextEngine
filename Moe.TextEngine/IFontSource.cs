@@ -9,7 +9,7 @@ namespace Moe.TextEngine;
 
 public interface IFontSource : IDisposable, IEquatable<IFontSource>
 {
-    ResourceID ResourceID { get; }
+    ResourceID ResourceId { get; }
 
     nint GetRawData();
 
@@ -19,6 +19,6 @@ public interface IFontSource : IDisposable, IEquatable<IFontSource>
     {
         if (other == null) return false;
 
-        return other.ResourceID.Equals(ResourceID);
+        return other.ResourceId.Equals(ResourceId);
     }
 }

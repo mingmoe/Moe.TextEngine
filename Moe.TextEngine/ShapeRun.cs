@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Moe.TextEngine;
 
-public class ShapeRun
+public sealed class ShapeRun
 {
     public FontOptions FontOptions { get; set; }
 
@@ -38,7 +38,7 @@ public class ShapeRun
 
     public string UsedText => Text.Substring(Offset, Length ?? (Text.Length - Offset));
 
-    public ShapeRun ResetUsedText(int offset, int length)
+    public ShapeRun CloneWithNewOffset(int offset, int length)
     {
         return new ShapeRun(this.FontOptions, this.ShapeOptions)
         {

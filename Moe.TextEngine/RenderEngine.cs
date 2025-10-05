@@ -45,7 +45,7 @@ public sealed class RenderEngine
         }
 
         Fonts.Add(font);
-        Cache.Add(font, new(Device, font.Source.ResourceID));
+        Cache.Add(font, new(Device, font.Source.ResourceId));
         Shapes.Add(font, ShapeEngine.Create(font));
         Rasterizers.Add(font, RasterizerEngine.Create(font));
     }
@@ -199,16 +199,15 @@ public sealed class RenderEngine
                 var request = new FontRequest(run.FontOptions,
                     BitConverter.ToInt32(BitConverter.GetBytes(shapedCharacter.GlyphIndex)));
 
-                (Texture2D, Rectangle)? bitmap = null;
-
-                if (!cache.TryGet(request, out bitmap))
+                if (!cache.TryGet(request, out var bitmap))
                 {
-                    var size = rasterizers.LoadChar(shapedCharacter.GlyphIndex,fontOptions);
+                    var size = rasterizers.LoadChar(shapedCharacter.GlyphIndex, fontOptions);
                     var allocated = cache.Alloc(request, new(size.Width, size.Rows));
                     rasterizers.WriteTo(allocated.Item1, allocated.Item2);
                     bitmap = allocated;
 
-                    if (!GlyphCache.ContainsKey(font)) {
+                    if (!GlyphCache.ContainsKey(font))
+                    {
                         GlyphCache.TryAdd(font, []);
                     }
 
